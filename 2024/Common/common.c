@@ -1,5 +1,50 @@
 #include "common.h"
 
+ssize_t getline(char **lineptr, size_t *n, FILE *stream) {
+    if (lineptr == NULL || n == NULL || stream == NULL) {
+        return -1;
+    }
+
+    char *buf = *lineptr;
+    size_t size = *n;
+    int c = 0;
+    size_t len = 0;
+
+    if (buf == NULL || size == 0) {
+        size = 128;
+        buf = (char *)malloc(size);
+        if (buf == NULL) {
+            return -1;
+        }
+    }
+
+    while ((c = fgetc(stream)) != EOF) {
+        if (len + 1 >= size) {
+            size *= 2;
+            char *new_buf = (char *)realloc(buf, size);
+            if (new_buf == NULL) {
+                free(buf);
+                return -1;
+            }
+            buf = new_buf;
+        }
+        buf[len++] = (char)c;
+        if (c == '\n') {
+            break;
+        }
+    }
+
+    if (len == 0 && c == EOF) {
+        return -1;
+    }
+
+    buf[len] = '\0';
+    *lineptr = buf;
+    *n = size;
+
+    return len;
+}
+
 FILE *get_input_data(char *filename)
 {
     FILE *file = fopen(filename, "r");
