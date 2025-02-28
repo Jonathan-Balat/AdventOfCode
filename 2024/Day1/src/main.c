@@ -30,7 +30,7 @@ void process_input_data(uint32_t *list_A, uint32_t *list_B)
     fclose(file);
 }
 
-int puzzle_part_1(void)
+void puzzle_part_1(void)
 {
     uint32_t L_list[MAX_DATA];
     uint32_t R_list[MAX_DATA];
@@ -60,8 +60,6 @@ int puzzle_part_1(void)
     }
 
     printf("Total Distance: %d\n", total_distance);
-
-    return total_distance;
 }
 
 void puzzle_part_2(void)
