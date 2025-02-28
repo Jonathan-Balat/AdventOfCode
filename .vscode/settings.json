@@ -2,6 +2,10 @@
     "files.associations": {
         "stdlib.h": "c",
         "stdio.h": "c",
-        "main.h": "c"
+        "main.h": "c",
+        "common.h": "c",
+        "string.h": "c",
+        "string": "c",
+        "string_view": "c"
     }
 }
