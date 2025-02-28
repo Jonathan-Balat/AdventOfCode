@@ -4,7 +4,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
 
+
+void sort_ascending(uint32_t *list, uint32_t size);
 ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 FILE *get_input_data(char *filename);
 

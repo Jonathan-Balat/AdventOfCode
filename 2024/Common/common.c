@@ -1,5 +1,16 @@
 #include "common.h"
 
+
+int __compare(const void *a, const void *b)
+{
+    return (*(uint32_t *)a - *(uint32_t *)b);
+}
+
+void sort_ascending(uint32_t *list, uint32_t size)
+{
+    qsort(list, size, sizeof(uint32_t), __compare);
+}
+
 ssize_t getline(char **lineptr, size_t *n, FILE *stream) {
     if (lineptr == NULL || n == NULL || stream == NULL) {
         return -1;
