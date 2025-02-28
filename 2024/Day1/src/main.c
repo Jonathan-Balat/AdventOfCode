@@ -30,40 +30,92 @@ void process_input_data(uint32_t *list_A, uint32_t *list_B)
     fclose(file);
 }
 
-int main(void)
+int puzzle_part_1(void)
 {
     uint32_t L_list[MAX_DATA];
     uint32_t R_list[MAX_DATA];
-    uint32_t diff_list[MAX_DATA];
+    uint32_t difference = 0x0;
     uint32_t total_distance = 0;
-
-    printf("AoC Day1 Puzzle 1!\n");
 
     process_input_data(L_list, R_list);
 
-    /* Puzzle Part 1 */
     sort_ascending(L_list, MAX_DATA);
     sort_ascending(R_list, MAX_DATA);
 
-    /* Contrast each index to get their difference. Store to 3rd list. */
+    /* Puzzle Part 1 */
+    printf("AoC Day1 Puzzle 1!\n");
+
+    /* Contrast each index to get their difference, then add to total distance */
     for (uint32_t i = 0; i < MAX_DATA; i++)
     {
         if (R_list[i] >= L_list[i])
         {
-            diff_list[i] = R_list[i] - L_list[i];
+            difference = R_list[i] - L_list[i];
         }
         else
         {
-            diff_list[i] = L_list[i] - R_list[i];
+            difference = L_list[i] - R_list[i];
         }
-    }
-
-    /* find total distance and return result. */
-    for (uint32_t i=0; i < MAX_DATA; i++)
-    {
-        total_distance += diff_list[i];
+        total_distance += difference;
     }
 
     printf("Total Distance: %d\n", total_distance);
+
+    return total_distance;
+}
+
+void puzzle_part_2(void)
+{
+    uint32_t L_list[MAX_DATA];
+    uint32_t R_list[MAX_DATA];
+    uint32_t prev_num = 0;
+    uint32_t similarity_score = 0;
+
+    process_input_data(L_list, R_list);
+
+    sort_ascending(L_list, MAX_DATA);
+    sort_ascending(R_list, MAX_DATA);
+
+    /* Puzzle Part 2 */
+    printf("AoC Day1 Puzzle 2!\n");
+
+    for (uint32_t idx = 0; idx < MAX_DATA; idx++)
+    {
+        if ((idx > 0) && (L_list[idx] == prev_num))
+        {
+            /* Skip if the number the same with previous number */
+            continue;
+        }
+        else
+        {
+            /* Update last number used*/
+            prev_num = L_list[idx];
+        }
+
+        for (uint32_t sub_idx=0; sub_idx<MAX_DATA; sub_idx++)
+        {
+            if (L_list[idx] == R_list[sub_idx])
+            {
+                similarity_score += L_list[idx];
+            }
+            else if (L_list[idx] < R_list[sub_idx])
+            {
+                break;
+            }
+            else
+            {
+                // Do nothing;
+            }
+        }
+    }
+      
+    printf("Similarity score: %d\n", similarity_score);
+}
+
+int main(void)
+{
+    puzzle_part_1();
+    puzzle_part_2();
+    
     return 0;
 }
