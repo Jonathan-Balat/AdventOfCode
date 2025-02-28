@@ -17,8 +17,11 @@ for %%f in (*.c) do (
     set sources=!sources! %%f
 )
 
+REM Add the common.c file to the sources variable
+set sources=!sources! ..\..\Common\common.c
+
 REM Compile all .c files in the source directory and specify the include paths for the header and Common directories
-gcc -o ..\output\main !sources! -I..\header -I..\Common
+gcc -Wall -Wextra -o ..\output\main !sources! -I..\header -I..\..\Common
 
 REM Check if the compilation was successful
 if %errorlevel% equ 0 (
