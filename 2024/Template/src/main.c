@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include "common.h"
 
-#define MAX_DATA (1000)
-
 void process_input_data(uint32_t *list_A, uint32_t *list_B)
 {
     char *line = NULL; /* Automatically allocated in getline */
