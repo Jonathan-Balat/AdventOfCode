@@ -6,40 +6,99 @@
 #define MAX_DATA          (1000)
 #define MAX_DATA_PER_LINE (8)
 
-#define LVL_NONE          (0)
-#define LVL_DECREMENTING  (1)
-#define LVL_INCREMENTING  (2)
-#define LVL_INVALID       (3)
-
 #define LVL_BND_MAX      (4)
 #define LVL_BND_MIN      (0)
 
 typedef enum{
-    SAFE = 0,
-    UNSAFE = 1
-}report_status_e;
+    UNSAFE = 0,
+    SAFE = 1
+} report_status_e;
 
+typedef enum{
+    VALID           = 0,
+    INVALID_DIFF,
+    INVALID_DIR,
+    INVALID
+} report_err_type_e;
+
+typedef enum{
+    LVL_NONE            = 0,
+    LVL_INCREMENTING,
+    LVL_DECREMENTING,
+    LVL_INVALID
+} report_dir_lvl_e;
+
+
+report_err_type_e check_number_difference(uint32_t num_prev, uint32_t num_next)
+{
+    uint32_t num_diff = 0;
+    report_err_type_e report_value = VALID;
+
+    /* Get difference */
+    if (num_prev < num_next)
+    {
+        num_diff = num_next - num_prev;
+    }
+    else if (num_prev > num_next)
+    {
+        num_diff = num_prev - num_next;
+    }
+    else
+    {
+        num_diff = 0;
+    }
+
+    /* Check if difference is within bounds */
+    if ((num_diff == LVL_BND_MIN)||(num_diff >= LVL_BND_MAX))
+    {
+        report_value = INVALID_DIFF;
+    }
+
+    return report_value;
+}
+
+report_err_type_e check_number_level(uint32_t num_prev, uint32_t num_next, report_dir_lvl_e *level_dir)
+{
+    report_err_type_e report_value = VALID;
+
+    if (num_prev < num_next)
+    {
+        *level_dir |= LVL_INCREMENTING;
+    }
+    else if (num_prev > num_next)
+    {
+        *level_dir |= LVL_DECREMENTING;
+    }
+    else
+    {
+        *level_dir |= LVL_INVALID;
+    }
+
+    /* Check if direction is invalid, then override result to UNSAFE */
+    if (*level_dir == LVL_INVALID)
+    {
+        report_value = INVALID_DIR;
+    }
+
+    return report_value;
+}
 
 report_status_e assess_reports(uint32_t *list)
 {
     report_status_e result = SAFE;
 
-    uint8_t level_dir_bitm = LVL_NONE;
-
     uint32_t num_prev = list[0];
     uint32_t num_next = 0;
-    uint32_t num_diff = 0;
+
+    report_dir_lvl_e level_direction = LVL_NONE;
+
+    report_err_type_e err_list[MAX_DATA_PER_LINE] = {VALID};
+    uint8_t err_count = 0;
 
     /* Assess each report*/
     for (uint8_t idx = 1; idx < MAX_DATA_PER_LINE; idx++)
     {
         num_next = list[idx];
-
-        /* Check if already unsafe. Skip further assessments. */
-        if (result == UNSAFE)
-        {
-            break;
-        }
 
         /* Check if end of list, always ended with 0 */
         if (num_next == 0)
@@ -47,50 +106,32 @@ report_status_e assess_reports(uint32_t *list)
             break;
         }
 
-        /* Get level difference and direction */
-        if (num_prev < num_next)
-        {
-            level_dir_bitm |= LVL_INCREMENTING;
-            num_diff = num_next - num_prev;
-        }
-        else if (num_prev > num_next)
-        {
-            level_dir_bitm |= LVL_DECREMENTING;
-            num_diff = num_prev - num_next;
-        }
-        else
-        {
-            level_dir_bitm |= LVL_INVALID;
-            num_diff = 0;
-        }
+        /* Get level difference */
+        err_list[idx] |= check_number_difference(num_prev, num_next);
 
-        /* Check if difference is within bounds */
-        if ((num_diff == LVL_BND_MIN)||(num_diff >= LVL_BND_MAX))
-        {
-            result |= UNSAFE;
-        }
-
-        /* Check if direction is invalid, then override result to UNSAFE */
-        if (level_dir_bitm == LVL_INVALID)
-        {
-            result |= UNSAFE;
-        }
+        err_list[idx] |= check_number_level(num_prev, num_next, &level_direction);
         
-        // printf("%u) %u %u %u %u -> %u\n", idx, num_prev, num_next, num_diff, level_dir_bitm, result);
+        printf("%u) %u %u -> %u\n", idx, num_prev, num_next, result);
         num_prev = num_next;
     }
 
-    // if (result == SAFE)
-    // {
-    //     printf("SAFE\n\n");
-    // }
-    // else
-    // {
-    //     printf("UNSAFE\n\n");
-    // }
+    /* Count errors */
+    for (uint8_t idx = 0; idx < MAX_DATA_PER_LINE; idx++)
+    {
+        if (err_list[idx] > 0)
+        {
+            err_count++;
+        }
+    }
+
+    if (err_count > 0)
+    {
+        result = UNSAFE;
+    }
 
     return result;
 }
+
 
 void puzzle_part_1(void)
 {
@@ -100,8 +141,6 @@ void puzzle_part_1(void)
     FILE *file = NULL;
     
     char *token = NULL;
-    report_status_e report_value = SAFE;
-    uint16_t report_idx = 0;
     uint16_t report_safe_count = 0;
     uint32_t list_num[MAX_DATA_PER_LINE];
     
@@ -109,9 +148,11 @@ void puzzle_part_1(void)
     
     /* loop over each line input */ 
     read = getline(&line, &len, file);
-    report_idx = 0;
     while (read > 0)
     {
+        /* Clear array for reuse */
+        clear_array(list_num, MAX_DATA_PER_LINE);
+
         /* Loop over each number in line */
         token = strtok(line, " ");
         for (uint8_t idx = 0; ((token != NULL)&&(idx < MAX_DATA_PER_LINE)); idx++)
@@ -123,19 +164,8 @@ void puzzle_part_1(void)
             token = strtok(NULL, " ");
         }
 
-        report_value = assess_reports(list_num);
-        if (report_value==SAFE)
-        {
-            report_safe_count++;
-        }
-
-        /* Clear list */
-        for (uint8_t idx = 0; idx < MAX_DATA_PER_LINE; idx++)
-        {
-            list_num[idx] = 0;
-        }
-
-        report_idx++;
+        /* Assess reports if within standard */
+        report_safe_count += assess_reports(list_num);
 
         read = getline(&line, &len, file);
     }

@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 
+void clear_array(uint32_t *list, uint32_t size);
 void sort_ascending(uint32_t *list, uint32_t size);
 ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 FILE *get_input_data(char *filename);

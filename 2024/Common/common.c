@@ -1,6 +1,14 @@
 #include "common.h"
 
 
+void clear_array(uint32_t *list, uint32_t size)
+{
+    for (uint32_t idx = 0; idx < size; idx++)
+    {
+        list[idx] = 0;
+    }
+}
+
 int __compare(const void *a, const void *b)
 {
     return (*(uint32_t *)a - *(uint32_t *)b);
