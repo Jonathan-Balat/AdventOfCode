@@ -1,5 +1,21 @@
 #include "common.h"
+#include <assert.h>
 
+uint32_t *remove_array_element(uint32_t *list, uint32_t size, uint32_t index)
+{
+    uint32_t idx = 0;
+
+    /* Guard assertions */
+    assert(index < size);
+
+    /* Shift elements */
+    for (idx = index+1; idx < size; idx++)
+    {
+       list[idx-1] = list[idx];
+    }
+
+    return list;
+}
 
 void clear_array(uint32_t *list, uint32_t size)
 {
