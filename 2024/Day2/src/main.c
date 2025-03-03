@@ -108,12 +108,13 @@ void check_number_level(uint8_t idx, uint32_t *list, int32_t *err_dir_list, repo
     }
 }
 
-uint8_t assess_report(uint32_t *list, uint8_t idx_max)
+uint8_t assess_report(uint32_t *list, uint8_t idx_max, uint32_t *unique_err_count)
 {
     int32_t err_dir[idx_max];
     int32_t err_diff[idx_max];
     report_err_type_e err_list[idx_max];
     uint8_t err_count = 0;
+    uint8_t unique_err_bitm = 0;
 
     /* Clear errors before re/assessing */
     clear_array(err_list, idx_max);
@@ -136,6 +137,13 @@ uint8_t assess_report(uint32_t *list, uint8_t idx_max)
         {
             err_count++;
         }
+
+        unique_err_bitm |= err_list[idx];
+    }
+
+    if ((unique_err_bitm != INVALID)&&(err_count == 1))
+    {
+        (*unique_err_count)++;
     }
 
     if (err_count == 1)
@@ -148,7 +156,7 @@ uint8_t assess_report(uint32_t *list, uint8_t idx_max)
         }
         printf("\n");
 
-        printf("Errors %u: \n", err_count);
+        printf("Errors %u (UNQ=%u): \n", err_count, *unique_err_count);
         for (uint8_t idx = 0; idx < idx_max; idx++)
         {
             printf("%d ", err_list[idx]);
@@ -171,132 +179,6 @@ uint8_t assess_report(uint32_t *list, uint8_t idx_max)
     return err_count;
 }
 
-
-uint8_t problem_dampener(uint32_t* list)
-{
-    uint32_t new_list[MAX_DATA_PER_LINE];
-    uint32_t *pSub_list = NULL;
-    uint8_t error_count = 0;
-
-    /* Debug print */
-    
-    printf("Original -->  ");
-    for (uint8_t idx = 0; idx < MAX_DATA_PER_LINE; idx++)
-    {
-        printf("%u ", list[idx]);
-    }
-    printf("\n");
-
-    // Sweep through list and remove element. Reassess report.
-    for (uint8_t idx = 0; idx < MAX_DATA_PER_LINE; idx++)
-    {
-        /* Create copy of list */
-        for (uint8_t idx = 0; idx < MAX_DATA_PER_LINE; idx++)
-        {
-            new_list[idx] = list[idx];
-        }
-
-        // Remove element from list, then shifts elements
-        pSub_list = remove_array_element(new_list, MAX_DATA_PER_LINE, idx);
-
-        printf("Removed element %u -->  ", idx);
-         /* Debug print */
-         for (uint8_t idx = 0; idx < MAX_DATA_PER_LINE; idx++)
-         {
-            printf("%u ", pSub_list[idx]);
-         }
-
-        // Reassess report
-        error_count = assess_report(list, MAX_DATA_PER_LINE);
-        if (error_count == 0)
-        {
-            printf("error = %u\n", error_count);
-            break;
-        }
-        else
-        {
-            printf("\n");
-        }
-    }
-    
-    return error_count;
-}
-
-
-void puzzle_part_1(void)
-{
-    char *line = NULL; /* Automatically allocated in getline */
-    size_t len = 0;
-    ssize_t read;
-    FILE *file = NULL;
-    
-    char *token = NULL;
-    uint8_t idx_max = 0;
-    uint16_t report_safe_count = 0;
-    uint8_t error_count = 0;
-    uint32_t list_num[MAX_DATA_PER_LINE];
-    
-    file = get_input_data("../input.txt");
-    
-    /* loop over each line input */ 
-    read = getline(&line, &len, file);
-    while (read > 0)
-    {
-        /* Clear array for reuse */
-        clear_array(list_num, MAX_DATA_PER_LINE);
-
-        /* Loop over each number in line, and keep track of its size */
-        token = strtok(line, " ");
-        for (uint8_t idx = 0; ((token != NULL)&&(idx < MAX_DATA_PER_LINE)); idx++)
-        {
-            /* Store integer into list */
-            sscanf(token, "%u", &list_num[idx]);
-
-            /* Get next number */
-            token = strtok(NULL, " ");
-            idx_max = idx+1;
-        }
-
-        /* Assess reports if within standard */
-        error_count = assess_report(list_num, idx_max);
-
-        // if (error_count == 1)
-        // {
-            printf("ERR = %u\n", error_count);
-        // }
-
-        if (error_count == 0)
-        {
-            report_safe_count++;
-        }
-        else if (error_count == 1)
-        {
-            error_count = problem_dampener(list_num);
-            
-            printf("-->PDAMP = %u", error_count);
-
-            if (error_count == 0)
-            {
-                report_safe_count++;
-            }
-            printf("\n");
-        }
-        else
-        {
-            // Do nothing
-        }
-
-
-        read = getline(&line, &len, file);
-    }
-
-
-    printf("Number of safe reports: %u\n", report_safe_count);
-
-    free(line);
-    fclose(file);
-}
-
 void puzzle_part_2(void)
 {
     char *line = NULL; /* Automatically allocated in getline */
@@ -308,6 +190,7 @@ void puzzle_part_2(void)
     uint8_t idx_max = 0;
     uint16_t report_safe_count = 0;
     uint8_t error_count = 0;
+    uint32_t unique_err_count = 0;
     uint32_t list_num[MAX_DATA_PER_LINE];
     
     file = get_input_data("../input.txt");
@@ -332,7 +215,7 @@ void puzzle_part_2(void)
         }
 
         /* Assess reports if within standard */
-        error_count = assess_report(list_num, idx_max);
+        error_count = assess_report(list_num, idx_max, &unique_err_count);
         if (error_count == 0)
         {
             report_safe_count++;
