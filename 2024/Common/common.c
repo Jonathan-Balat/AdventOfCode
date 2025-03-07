@@ -80,12 +80,37 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream) {
     return len;
 }
 
-FILE *get_input_data(char *filename)
+
+
+/********** FILE MANAGER **********/
+typedef struct file_manager {
+    FILE file[1];
+    uint8_t file_count;
+} file_manager_t;
+
+static file_manager_t file_manager = {0};
+
+FILE *open_file(char *filename)
 {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         perror("Error opening file");
         return NULL;
     }
+
+    file_manager.file[file_manager.file_count] = *file;
+    file_manager.file_count++;
+
     return file;
+}
+
+void close_files(void)
+{
+    if (file_manager.file_count > 0)
+    {
+        for (uint8_t idx = 0; idx < file_manager.file_count; idx++)
+        {
+            fclose(&(file_manager.file[idx]));
+        }
+    }
 }
