@@ -193,7 +193,7 @@ void puzzle_part_2(void)
     uint32_t unique_err_count = 0;
     uint32_t list_num[MAX_DATA_PER_LINE];
     
-    file = get_input_data("../input.txt");
+    file = open_file("../input.txt");
     
     /* loop over each line input */ 
     read = getline(&line, &len, file);
@@ -228,7 +228,7 @@ void puzzle_part_2(void)
     printf("Number of safe reports: %u\n", report_safe_count);
 
     free(line);
-    fclose(file);
+    close_files();
 
 }
 
