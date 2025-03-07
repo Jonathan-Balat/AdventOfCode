@@ -106,11 +106,14 @@ FILE *open_file(char *filename)
 
 void close_files(void)
 {
+    uint8_t file_max = 0x0;
     if (file_manager.file_count > 0)
     {
-        for (uint8_t idx = 0; idx < file_manager.file_count; idx++)
+        file_max = file_manager.file_count;
+        for (uint8_t file_num = 0; file_num < file_max; file_num++)
         {
-            fclose(&(file_manager.file[idx]));
+            fclose(&(file_manager.file[file_num]));
+            file_manager.file_count--;
         }
     }
 }
