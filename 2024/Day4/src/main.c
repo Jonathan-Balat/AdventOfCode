@@ -10,14 +10,14 @@
 #define LTR_S 'S'
 
 
-uint16_t scan_horizontal(FILE *file)
+uint32_t scan_horizontal(FILE *file)
 {
     char *get_line = (char *)malloc((MAX_CHAR) * sizeof(char));
-    uint16_t count = 0x0;
+    uint32_t f_count = 0x0;
+    uint32_t r_count = 0x0;
     uint8_t b_valid = 0x1;
     uint8_t i = 0;
 
-    /********** Horizontal Forward **********/
     /* Iterate over each lines - Horizontal Forward */
     while (fgets(get_line, MAX_CHAR, file) != NULL)
     {
@@ -27,6 +27,8 @@ uint16_t scan_horizontal(FILE *file)
         // Loop over line characters, comparing forward
         for (i = 0; i < MAX_CHAR-(2+3); i++)
         {
+            
+            /********** Horizontal Forward **********/
             b_valid = 0x1;
 
             b_valid &= (get_line[i] == LTR_X);
@@ -36,28 +38,10 @@ uint16_t scan_horizontal(FILE *file)
 
             if (b_valid)
             {
-                count++;
+                f_count++;
             }
-        }  
-    }
-
-    // printf("\nTotal count H-Forward: %d", count);
-
-    /* Reset file pointer before returning */
-    rewind(file);
-    
-    /********** Horizontal Reverse **********/
-    /* Iterate over each lines - Horizontal Reverse */
-    while (fgets(get_line, MAX_CHAR, file) != NULL)
-    {
-        uint8_t b_valid = 0x1;
-
-        // Remove newline character if present
-        get_line[strcspn(get_line, "\n")] = '\0';
-
-        // Loop over line characters, comparing forward
-        for (uint8_t i = 0; i < MAX_CHAR-(2+3); i++)
-        {
+            
+            /********** Horizontal Reverse **********/
             b_valid = 0x1;
 
             b_valid &= (get_line[i] == LTR_S);
@@ -67,19 +51,20 @@ uint16_t scan_horizontal(FILE *file)
 
             if (b_valid)
             {
-                count++;
+                r_count++;
             }
         }  
     }
 
-    printf("\nTotal count H: %d", count);
+    printf("\nTotal count H: %d", f_count+r_count);
+
     /* Reset file pointer before returning */
     rewind(file);
     
     /* Free up allocated memory */
     free(get_line);
 
-    return count;
+    return f_count+r_count;
 }
 
 
@@ -90,11 +75,11 @@ uint32_t scan_vertical(FILE *file)
     char *get_line2 = (char *)malloc((MAX_CHAR) * sizeof(char));
     char *get_line3 = (char *)malloc((MAX_CHAR) * sizeof(char));
     char *get_line4 = (char *)malloc((MAX_CHAR) * sizeof(char));
-    uint32_t count = 0x0;
+    uint32_t f_count = 0x0;
+    uint32_t r_count = 0x0;
     uint8_t b_valid = 0x1;
     uint8_t i = 0;
 
-    /********** Vertical Forward **********/
     fgets(get_line1, MAX_CHAR, file);
     fgets(get_line2, MAX_CHAR, file);
     fgets(get_line3, MAX_CHAR, file);
@@ -112,7 +97,8 @@ uint32_t scan_vertical(FILE *file)
 
         // Loop over line characters, comparing forward
         for (i = 0; i < MAX_CHAR-2; i++)
-        {
+        {            
+            /********** Vertical Forward **********/
             b_valid = 0x1;
 
             b_valid &= (get_line1[i] == LTR_X);
@@ -122,40 +108,10 @@ uint32_t scan_vertical(FILE *file)
 
             if (b_valid)
             {
-                count++;
+                f_count++;
             }
-        }  
 
-        /* Update lines for next vertical checking */
-        strcpy(get_line1, get_line2);
-        strcpy(get_line2, get_line3);
-        strcpy(get_line3, get_line4);
-    }
-    
-    // printf("\nTotal count V-Forward: %d", count);
-
-    /* Reset file pointer before returning */
-    rewind(file);
-
-    /********** Vertical Reverse **********/
-    fgets(get_line1, MAX_CHAR, file);
-    fgets(get_line2, MAX_CHAR, file);
-    fgets(get_line3, MAX_CHAR, file);
-    
-    /* Remove newline character if present */
-    get_line1[strcspn(get_line1, "\n")] = '\0';
-    get_line2[strcspn(get_line2, "\n")] = '\0';
-    get_line3[strcspn(get_line3, "\n")] = '\0';
-
-    /* Iterate over each lines */
-    while (fgets(get_line4, MAX_CHAR, file) != NULL)
-    {
-        /* Remove newline character if present */
-        get_line4[strcspn(get_line4, "\n")] = '\0';
-
-        // Loop over line characters, comparing forward
-        for (i = 0; i < MAX_CHAR-2; i++)
-        {
+            /********** Vertical Reverse **********/
             b_valid = 0x1;
 
             b_valid &= (get_line1[i] == LTR_S);
@@ -165,7 +121,7 @@ uint32_t scan_vertical(FILE *file)
 
             if (b_valid)
             {
-                count++;
+                r_count++;
             }
         }  
 
@@ -175,8 +131,8 @@ uint32_t scan_vertical(FILE *file)
         strcpy(get_line3, get_line4);
     }
     
-    printf("\nTotal count V: %d", count);
-    
+    printf("\nTotal count V: %d", f_count+r_count);
+
     /* Reset file pointer before returning */
     rewind(file);
 
@@ -186,7 +142,7 @@ uint32_t scan_vertical(FILE *file)
     free(get_line3);
     free(get_line4);
     
-    return count;
+    return f_count+r_count;
 }
 
 
@@ -197,12 +153,11 @@ uint32_t scan_diagonal_right(FILE *file)
     char *get_line2 = (char *)malloc((MAX_CHAR) * sizeof(char));
     char *get_line3 = (char *)malloc((MAX_CHAR) * sizeof(char));
     char *get_line4 = (char *)malloc((MAX_CHAR) * sizeof(char));
-    uint32_t count = 0x0;
+    uint32_t f_count = 0x0;
+    uint32_t r_count = 0x0;
     uint8_t b_valid = 0x1;
     uint8_t i = 0;
 
-    
-    /********** Diagonal Right Forward **********/
     fgets(get_line1, MAX_CHAR, file);
     fgets(get_line2, MAX_CHAR, file);
     fgets(get_line3, MAX_CHAR, file);
@@ -221,6 +176,7 @@ uint32_t scan_diagonal_right(FILE *file)
         // Loop over line characters, comparing forward
         for (i = 0; i < MAX_CHAR-(2+3); i++)
         {
+            /********** Diagonal Right Forward **********/
             b_valid = 0x1;
 
             b_valid &= (get_line1[i] == LTR_X);
@@ -230,40 +186,10 @@ uint32_t scan_diagonal_right(FILE *file)
 
             if (b_valid)
             {
-                count++;
+                f_count++;
             }
-        }  
 
-        /* Update lines for next vertical checking */
-        strcpy(get_line1, get_line2);
-        strcpy(get_line2, get_line3);
-        strcpy(get_line3, get_line4);
-    }
-    
-    // printf("\nTotal count DR-Forward: %d", count);
-
-    /* Reset file pointer before returning */
-    rewind(file);
-
-    /********** Diagonal Right Reverse **********/
-    fgets(get_line1, MAX_CHAR, file);
-    fgets(get_line2, MAX_CHAR, file);
-    fgets(get_line3, MAX_CHAR, file);
-    
-    /* Remove newline character if present */
-    get_line1[strcspn(get_line1, "\n")] = '\0';
-    get_line2[strcspn(get_line2, "\n")] = '\0';
-    get_line3[strcspn(get_line3, "\n")] = '\0';
-
-    /* Iterate over each lines */
-    while (fgets(get_line4, MAX_CHAR, file) != NULL)
-    {
-        /* Remove newline character if present */
-        get_line4[strcspn(get_line4, "\n")] = '\0';
-
-        // Loop over line characters, comparing forward
-        for (i = 0; i < MAX_CHAR-(2+3); i++)
-        {
+            /********** Diagonal Right Reverse **********/
             b_valid = 0x1;
 
             b_valid &= (get_line1[i] == LTR_S);
@@ -273,7 +199,7 @@ uint32_t scan_diagonal_right(FILE *file)
 
             if (b_valid)
             {
-                count++;
+                r_count++;
             }
         }  
 
@@ -282,12 +208,11 @@ uint32_t scan_diagonal_right(FILE *file)
         strcpy(get_line2, get_line3);
         strcpy(get_line3, get_line4);
     }
-    
-    printf("\nTotal count DR: %d", count);
+
+    printf("\nTotal count DR: %d", f_count+r_count);
 
     /* Reset file pointer before returning */
     rewind(file);
-
 
     /* Free up allocated memory */
     free(get_line1);
@@ -295,7 +220,7 @@ uint32_t scan_diagonal_right(FILE *file)
     free(get_line3);
     free(get_line4);
 
-    return count;
+    return f_count+r_count;
 }
 
 uint32_t scan_diagonal_left(FILE *file)
@@ -304,12 +229,11 @@ uint32_t scan_diagonal_left(FILE *file)
     char *get_line2 = (char *)malloc((MAX_CHAR) * sizeof(char));
     char *get_line3 = (char *)malloc((MAX_CHAR) * sizeof(char));
     char *get_line4 = (char *)malloc((MAX_CHAR) * sizeof(char));
-    uint32_t count = 0x0;
+    uint32_t f_count = 0x0;
+    uint32_t r_count = 0x0;
     uint8_t b_valid = 0x1;
     uint8_t i = 0;
 
-    
-    /********** Diagonal Right Forward **********/
     fgets(get_line1, MAX_CHAR, file);
     fgets(get_line2, MAX_CHAR, file);
     fgets(get_line3, MAX_CHAR, file);
@@ -328,6 +252,7 @@ uint32_t scan_diagonal_left(FILE *file)
         // Loop over line characters, comparing forward
         for (i = 0; i < MAX_CHAR-(2+3); i++)
         {
+            /********** Diagonal Left Forward **********/
             b_valid = 0x1;
 
             b_valid &= (get_line1[i+3] == LTR_X);
@@ -337,40 +262,10 @@ uint32_t scan_diagonal_left(FILE *file)
 
             if (b_valid)
             {
-                count++;
+                f_count++;
             }
-        }  
 
-        /* Update lines for next vertical checking */
-        strcpy(get_line1, get_line2);
-        strcpy(get_line2, get_line3);
-        strcpy(get_line3, get_line4);
-    }
-    
-    // printf("\nTotal count DL-Forward: %d", count);
-
-    /* Reset file pointer before returning */
-    rewind(file);
-
-    /********** Diagonal Right Reverse **********/
-    fgets(get_line1, MAX_CHAR, file);
-    fgets(get_line2, MAX_CHAR, file);
-    fgets(get_line3, MAX_CHAR, file);
-    
-    /* Remove newline character if present */
-    get_line1[strcspn(get_line1, "\n")] = '\0';
-    get_line2[strcspn(get_line2, "\n")] = '\0';
-    get_line3[strcspn(get_line3, "\n")] = '\0';
-
-    /* Iterate over each lines */
-    while (fgets(get_line4, MAX_CHAR, file) != NULL)
-    {
-        /* Remove newline character if present */
-        get_line4[strcspn(get_line4, "\n")] = '\0';
-
-        // Loop over line characters, comparing forward
-        for (i = 0; i < MAX_CHAR-(2+3); i++)
-        {
+            /********** Diagonal Left Reverse **********/
             b_valid = 0x1;
 
             b_valid &= (get_line1[i+3] == LTR_S);
@@ -380,7 +275,7 @@ uint32_t scan_diagonal_left(FILE *file)
 
             if (b_valid)
             {
-                count++;
+                r_count++;
             }
         }  
 
@@ -390,11 +285,10 @@ uint32_t scan_diagonal_left(FILE *file)
         strcpy(get_line3, get_line4);
     }
     
-    printf("\nTotal count DL: %d", count);
+    printf("\nTotal count DL: %d", f_count+r_count);
 
     /* Reset file pointer before returning */
     rewind(file);
-
 
     /* Free up allocated memory */
     free(get_line1);
@@ -402,7 +296,7 @@ uint32_t scan_diagonal_left(FILE *file)
     free(get_line3);
     free(get_line4);
 
-    return count;
+    return f_count+r_count;
 }
 
 
