@@ -326,65 +326,24 @@ uint32_t scan_diagonal_mas(FILE *file)
         // Loop over line characters, comparing forward
         for (i = 0; i < MAX_CHAR-(2+3); i++)
         {
-            /********** Diagonal Left **********/
-            b_valid_left = 0x0;
-
-            /* 
-                Checks for      X   M   X   S
-                                  A       A
-                                S   X   M   X
-            */
-
-            b_valid_left |= (get_line1[i+2] == LTR_M) & (get_line2[i+1] == LTR_A) & (get_line3[i] == LTR_S);
-            b_valid_left ^= (get_line1[i+2] == LTR_S) & (get_line2[i+1] == LTR_A) & (get_line3[i] == LTR_M);
-
-
-            /********** Diagonal Right **********/
-            b_valid_right = 0x0;
-
-                        /* 
-                Checks for      M   X   S   X
-                                  A       A
-                                X   S   X   M
-            */
-            b_valid_right |= (get_line1[i] == LTR_M) & (get_line2[i+1] == LTR_A) & (get_line3[i+2] == LTR_S);
-            b_valid_right ^= (get_line1[i] == LTR_S) & (get_line2[i+1] == LTR_A) & (get_line3[i+2] == LTR_M);
-
-            if (b_valid_right & b_valid_left)
+        
+            if (get_line2[i+1] == LTR_A)
             {
-                count++;
+                b_valid_left = 0x0;
+                b_valid_right = 0x0;
 
-                // /********** DEBUG PRINT **********/
-                // printf("\nFound valid left and right at lines:\n");
-                // for (int j = 0; j < MAX_CHAR; j++) {
-                //     if (j == i || j == i+2) {
-                //         printf("\033[1;31m%c\033[0m", get_line1[j]); // Highlight in red
-                //     } else {
-                //         printf("%c", get_line1[j]);
-                //     }
-                // }
-                // printf("\n");
-                // for (int j = 0; j < MAX_CHAR; j++) {
-                //     if (j == i+1) {
-                //         printf("\033[1;31m%c\033[0m", get_line2[j]); // Highlight in red
-                //     } else {
-                //         printf("%c", get_line2[j]);
-                //     }
-                // }
-                // printf("\n");
-                // for (int j = 0; j < MAX_CHAR; j++) {
-                //     if (j == i || j == i+2) {
-                //         printf("\033[1;31m%c\033[0m", get_line3[j]); // Highlight in red
-                //     } else {
-                //         printf("%c", get_line3[j]);
-                //     }
-                // }
-                // printf("\n");
-                    
-                // printf("Press Enter to continue...");
-                // while (getchar() != '\n');
-                // /********** DEBUG PRINT **********/
+                /*Checks right*/
+                b_valid_right = ((get_line1[i] == LTR_M) ^ (get_line3[i+2] == LTR_M)) && (get_line1[i] == LTR_S) ^ (get_line3[i+2] == LTR_S);
+
+                /*Checks left*/
+                b_valid_left = ((get_line1[i+2] == LTR_M) ^ (get_line3[i] == LTR_M)) && (get_line1[i+2] == LTR_S) ^ (get_line3[i] == LTR_S);
+
+                if (b_valid_left && b_valid_right)
+                {
+                    count++;
+                }
             }
+            
         }  
         
         /* Update lines for next vertical checking */
@@ -424,9 +383,7 @@ int main(void)
     total_count += scan_diagonal_left(file);
     printf("\n\nOverall Count Puzzle 1 = %d", total_count);
 
-    total_count = 0x0;
-
-    total_count += scan_diagonal_mas(file);
+    total_count = scan_diagonal_mas(file);
     printf("\n\nOverall Count Puzzle 2 = %d", total_count);
     /* 1907 is too low. */
 
