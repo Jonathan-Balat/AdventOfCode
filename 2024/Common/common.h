@@ -12,7 +12,8 @@ uint32_t *remove_array_element(uint32_t *list, uint32_t size, uint32_t index);
 void clear_array(uint32_t *list, uint32_t size);
 void sort_ascending(uint32_t *list, uint32_t size);
 ssize_t getline(char **lineptr, size_t *n, FILE *stream);
-FILE *get_input_data(char *filename);
+FILE *open_file(char *filename);
+void close_files(void);
 
 
 #endif // __COMMON_H__

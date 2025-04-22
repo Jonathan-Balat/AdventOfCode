@@ -11,7 +11,7 @@ void process_input_data(uint32_t *list_A, uint32_t *list_B)
     FILE *file = NULL;
     uint32_t idx = 0;
     
-    file = get_input_data("../input.txt");
+    file = open_file("../input.txt");
     
     /* loop over each line input */ 
     read = getline(&line, &len, file);
@@ -25,7 +25,7 @@ void process_input_data(uint32_t *list_A, uint32_t *list_B)
     }
 
     free(line);
-    fclose(file);
+    close_files();
 }
 
 void puzzle_part_1(void)
