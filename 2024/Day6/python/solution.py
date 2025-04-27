@@ -1,4 +1,5 @@
 
+# ENUMS
 CHAR_WALL = '#'
 CHAR_WALKED = 'X'
 CHAR_UP = '^'
@@ -80,6 +81,7 @@ def turn_direction(direction: int) -> tuple:
 
     return character, direction
 
+
 if __name__ == "__main__":
 
     # Access file
@@ -87,9 +89,9 @@ if __name__ == "__main__":
 
         map_array = generate_map(file)
 
-        # First time, get position when found
+        # First time, get position when found (Assumed as facing up)
         for y_pos,item in enumerate(map_array):
-            x_pos =  item.find("^")
+            x_pos =  item.find(CHAR_UP)
             if x_pos > -1:
                 curr_position = (x_pos, y_pos, DIR_UP)
 
@@ -97,8 +99,9 @@ if __name__ == "__main__":
         while not b_done:
             curr_position, b_done = project_line(map_array, curr_position)
 
+        # Finalize count of walked spots
         sum_walked = 0
         for item in map_array:
             sum_walked += item.count(CHAR_WALKED)
-            # print(item)
+
         print("Total walked spots =", sum_walked)
