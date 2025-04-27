@@ -1,4 +1,15 @@
 
+CHAR_WALL = '#'
+CHAR_WALKED = 'X'
+CHAR_UP = '^'
+CHAR_RIGHT = '>'
+CHAR_DOWN = 'v'
+CHAR_LEFT = '<'
+DIR_UP = 0
+DIR_RIGHT = 1
+DIR_DOWN = 2
+DIR_LEFT = 3
+
 def generate_map(ref_file) -> list:
     map_arr = []
     raw_line = ref_file.readline().strip()
@@ -53,29 +64,23 @@ def project_line(map_arr:list, curr_pos: tuple) -> tuple:
 
 def turn_direction(direction: int) -> tuple:
 
+    # Increment but reset to zero, when out of bounds
     direction += 1
     if direction > DIR_LEFT:
         direction = 0
 
     if direction == DIR_UP:
-        character = '^'
+        character = CHAR_UP
     elif direction == DIR_RIGHT:
-        character = '>'
+        character = CHAR_RIGHT
     elif direction == DIR_DOWN:
-        character = 'v'
-    else:  # DIR_LEFT
-        character = '<'
+        character = CHAR_DOWN
+    else:
+        character = CHAR_LEFT
 
     return character, direction
 
 if __name__ == "__main__":
-
-    CHAR_WALL = '#'
-    CHAR_WALKED = 'X'
-    DIR_UP = 0
-    DIR_RIGHT = 1
-    DIR_DOWN = 2
-    DIR_LEFT = 3
 
     # Access file
     with open("../input.txt", "r") as file:
