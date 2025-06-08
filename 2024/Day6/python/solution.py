@@ -32,7 +32,7 @@ def project_line(map_arr:list, curr_pos: tuple) -> tuple:
         x, y = dx, dy
 
         # Get copy of current row before changes
-        row = map_arr[tr_y + dy]
+        row = map_arr[tr_y + dy][:]
 
         # Sets sign based on tr_dir
         if tr_dir == DIR_UP:
@@ -46,14 +46,16 @@ def project_line(map_arr:list, curr_pos: tuple) -> tuple:
 
         # Verifies if found Wall, set new character
         try:
+            # Determine next character
             if map_arr[tr_y + dy][tr_x + dx] == CHAR_WALL:
                 b_collision = True
 
-                # Update character
-                dir_char, tr_dir = turn_direction(tr_dir)
-                map_arr[tr_y + y] = row[:(tr_x + x)] + dir_char + row[(tr_x + x + 1):]
+                new_char, tr_dir = turn_direction(tr_dir)
             else:  # Else set walked character
-                map_arr[tr_y + y] = row[:(tr_x + x)] + CHAR_WALKED + row[(tr_x + x + 1):]
+                new_char = CHAR_WALKED
+            
+            # Update character
+            map_arr[tr_y + y] = row[:(tr_x + x)] + new_char + row[(tr_x + x + 1):]
         except IndexError:
             b_exited = True
             map_arr[tr_y + y] = row[:(tr_x + x)] + CHAR_WALKED + row[(tr_x + x + 1):]
@@ -89,7 +91,7 @@ if __name__ == "__main__":
 
         map_array = generate_map(file)
 
-        # First time, get position when found (Assumed as facing up)
+        # Loops over each row of map to find the starting position (Assumed as facing up - CHAR_UP)
         for y_pos,item in enumerate(map_array):
             x_pos =  item.find(CHAR_UP)
             if x_pos > -1:
