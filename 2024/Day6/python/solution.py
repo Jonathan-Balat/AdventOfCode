@@ -45,21 +45,20 @@ def project_line(map_arr:list, curr_pos: tuple) -> tuple:
             dx -= 1
 
         # Verifies if found Wall, set new character
+        new_char = CHAR_WALKED
         try:
-            # Determine next character
+            # Determine if will step forward or turn
             if map_arr[tr_y + dy][tr_x + dx] == CHAR_WALL:
-                b_collision = True
-
                 new_char, tr_dir = turn_direction(tr_dir)
-            else:  # Else set walked character
-                new_char = CHAR_WALKED
-            
-            # Update character
-            map_arr[tr_y + y] = row[:(tr_x + x)] + new_char + row[(tr_x + x + 1):]
+                b_collision = True
+                
         except IndexError:
+            # Excited from map
             b_exited = True
-            map_arr[tr_y + y] = row[:(tr_x + x)] + CHAR_WALKED + row[(tr_x + x + 1):]
 
+        # Update character
+        map_arr[tr_y + y] = row[:(tr_x + x)] + new_char + row[(tr_x + x + 1):]
+        
     # Commit steps to current position
     curr_pos = (tr_x + x, tr_y + y, tr_dir)
 
