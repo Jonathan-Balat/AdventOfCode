@@ -2,6 +2,7 @@
 def get_mid_value(ref_update) -> int:
     return ref_update[len(ref_update)//2]
 
+
 def read_paragraph(ref_file, ref_list: list) -> list:
     raw_line = ref_file.readline().strip()
     while raw_line.__len__() > 0:
@@ -10,7 +11,8 @@ def read_paragraph(ref_file, ref_list: list) -> list:
 
     return ref_list
 
-def compile_rules(ref_list: list, ref_rules:dict) -> None:
+
+def compile_rules(ref_list: list, ref_rules: dict) -> None:
     for item in ref_list:
         # Extract and cast numbers to integers
         base_num, valid_next_num = item.split("|")
@@ -34,6 +36,7 @@ def compile_rules(ref_list: list, ref_rules:dict) -> None:
     else:
         assert ValueError("No last number found!")
 
+
 def format_page_updates(ref_updates: list) -> list:
 
     tmp_list = []
@@ -42,7 +45,8 @@ def format_page_updates(ref_updates: list) -> list:
 
     return tmp_list
 
-def assess_page_update(ref_rules:dict, ref_update: list) -> bool:
+
+def assess_page_update(ref_rules: dict, ref_update: list) -> bool:
     b_valid = True
     max_idx = len(ref_update)-1
 
@@ -58,7 +62,8 @@ def assess_page_update(ref_rules:dict, ref_update: list) -> bool:
 
     return b_valid
 
-def fix_invalid_update(ref_rules:dict, ref_update: list) -> list:
+
+def fix_invalid_update(ref_rules: dict, ref_update: list) -> list:
 
     base_idx = 0
     next_idx = base_idx+1
