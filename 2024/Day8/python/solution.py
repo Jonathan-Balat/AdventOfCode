@@ -22,13 +22,8 @@ class Antenna:
         self.x = x
         self.y = y
 
-freq_list = []
-antenna_dict = {}
-anti_node_loc_list = []
-area_boundary = ()
 
-
-def extract_unique_frequencies(scan_line, y_idx):
+def extract_unique_frequencies(antenna_dict, freq_list, scan_line, y_idx):
     # Remove newline character
     for character in scan_line:
         if character not in ["\n", " ", "."]:
@@ -54,6 +49,7 @@ def extract_unique_frequencies(scan_line, y_idx):
                     )
                 )
 
+    return antenna_dict, freq_list
 
 def n_combination(n):
     return n*(n-1)
@@ -78,23 +74,7 @@ def get_map_and_boundary(file):
 
     return map_copy_list, map_boundary
 
-
-local_map_copy_list: list = []
-area_boundary: tuple = ()
-
-if __name__ == "__main__":
-
-    # Access file
-    with open("../input.txt", "r") as file:
-        data_dict = {}
-
-        local_map_copy_list, area_boundary = get_map_and_boundary(file)
-
-    # Extract different "frequencies" and antennas
-    for y_idx, item in enumerate(local_map_copy_list):
-        extract_unique_frequencies(item, y_idx)
-
-    # Generate Anodes per frequency
+def generate_anodes(antenna_dict: dict):
     anti_node_loc_list = []
     for freq, antenna_list in antenna_dict.items():
         node_comb_list = []
@@ -107,7 +87,8 @@ if __name__ == "__main__":
                     # print("Skipped")
                     continue
 
-                combination = (antenna_ref, antenna_comp) if antenna_ref.id < antenna_comp.id else (antenna_comp, antenna_ref)
+                combination = (antenna_ref, antenna_comp) if antenna_ref.id < antenna_comp.id else (
+                antenna_comp, antenna_ref)
                 if combination in node_comb_list:
                     continue
 
@@ -118,14 +99,12 @@ if __name__ == "__main__":
                     (antenna_comp.x, antenna_comp.y)
                 )
 
-                pos_diff_x = (antenna_ref.x - antenna_comp.x)
-                pos_diff_y = (antenna_ref.y - antenna_comp.y)
-
                 # NOTE: don't forget y-axis is inverted as origin starts from top-left
                 Anode_A_pos = (antenna_ref.x + diff_x, antenna_ref.y + diff_y)
                 Anode_B_pos = (antenna_comp.x - diff_x, antenna_comp.y - diff_y)
                 # print(f"Anode A position {Anode_A_pos}")
                 # print(f"Anode B position {Anode_B_pos}")
+
                 if 0 < Anode_A_pos[0] <= area_boundary[0] and 0 < Anode_A_pos[1] <= area_boundary[1]:
                     if Anode_A_pos not in anti_node_loc_list:
                         anti_node_loc_list.append(Anode_A_pos)
@@ -133,5 +112,28 @@ if __name__ == "__main__":
                 if 0 < Anode_B_pos[0] <= area_boundary[0] and 0 < Anode_B_pos[1] <= area_boundary[1]:
                     if Anode_B_pos not in anti_node_loc_list:
                         anti_node_loc_list.append(Anode_B_pos)
+
+    return anti_node_loc_list
+
+
+if __name__ == "__main__":
+
+    local_map_copy_list: list = []
+    area_boundary: tuple = ()
+    freq_list = []
+    antenna_dict = {}
+
+    # Access file
+    with open("../input.txt", "r") as file:
+        data_dict = {}
+
+        local_map_copy_list, area_boundary = get_map_and_boundary(file)
+
+    # Extract different "frequencies" and antennas
+    for y_idx, item in enumerate(local_map_copy_list):
+        antenna_dict, freq_list = extract_unique_frequencies(antenna_dict, freq_list, item, y_idx)
+
+    # Generate Anodes per frequency
+    anti_node_loc_list = generate_anodes(antenna_dict)
 
     print(f"ANODES", anti_node_loc_list, anti_node_loc_list.__len__())
