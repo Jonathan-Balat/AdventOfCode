@@ -79,24 +79,40 @@ def generate_anodes(ant_dict: dict):
 
                 node_comb_list.append(combination)
                 # print(f"Comparing {antenna_ref} with {antenna_comp}")
+
+                # Generate Anode positions
                 diff_x, diff_y = compute(
                     (antenna_ref.x, antenna_ref.y),
                     (antenna_comp.x, antenna_comp.y)
                 )
 
-                # NOTE: don't forget y-axis is inverted as origin starts from top-left
-                Anode_A_pos = (antenna_ref.x + diff_x, antenna_ref.y + diff_y)
-                Anode_B_pos = (antenna_comp.x - diff_x, antenna_comp.y - diff_y)
-                # print(f"Anode A position {Anode_A_pos}")
-                # print(f"Anode B position {Anode_B_pos}")
+                bHarmonic = True
+                multiplier = 1
+                while bHarmonic:
+                    # NOTE: don't forget y-axis is inverted as origin starts from top-left
+                    Anode_A_pos = (antenna_ref.x + diff_x*multiplier, antenna_ref.y + diff_y*multiplier)
+                    # print(f"Anode A position {Anode_A_pos}")
 
-                if 0 < Anode_A_pos[0] <= area_boundary[0] and 0 < Anode_A_pos[1] <= area_boundary[1]:
-                    if Anode_A_pos not in anode_loc_list:
-                        anode_loc_list.append(Anode_A_pos)
+                    if 0 < Anode_A_pos[0] <= area_boundary[0] and 0 < Anode_A_pos[1] <= area_boundary[1]:
+                        if Anode_A_pos not in anode_loc_list:
+                            anode_loc_list.append(Anode_A_pos)
+                    else:
+                        bHarmonic = False
 
-                if 0 < Anode_B_pos[0] <= area_boundary[0] and 0 < Anode_B_pos[1] <= area_boundary[1]:
-                    if Anode_B_pos not in anode_loc_list:
-                        anode_loc_list.append(Anode_B_pos)
+                    multiplier += 1
+
+                bHarmonic = True
+                multiplier = 1
+                while bHarmonic:
+                    Anode_B_pos = (antenna_comp.x - diff_x*multiplier, antenna_comp.y - diff_y*multiplier)
+                    # print(f"Anode B position {Anode_B_pos}")
+                    if 0 < Anode_B_pos[0] <= area_boundary[0] and 0 < Anode_B_pos[1] <= area_boundary[1]:
+                        if Anode_B_pos not in anode_loc_list:
+                            anode_loc_list.append(Anode_B_pos)
+                    else:
+                        bHarmonic = False
+
+                    multiplier += 1
 
     return anode_loc_list
 
