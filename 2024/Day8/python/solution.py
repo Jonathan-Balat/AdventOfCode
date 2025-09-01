@@ -26,28 +26,17 @@ class Antenna:
 def extract_unique_frequencies(ant_dict, frequency_list, scan_line, y_idx):
     # Remove newline character
     for character in scan_line:
-        if character not in ["\n", " ", "."]:
-            if character not in frequency_list:
-                frequency_list.append(character)
+        if character in ["\n", " ", "."]:
+            continue
 
-            x_idx = scan_line.index(character)
+        if character not in frequency_list:
+            frequency_list.append(character)
 
-            if character not in ant_dict.keys():
-                ant_dict[character] = [
-                    Antenna(
-                        frequency=character,
-                        x=x_idx,
-                        y=y_idx
-                    )
-                ]
-            else:
-                ant_dict[character].append(
-                    Antenna(
-                        frequency=character,
-                        x=x_idx,
-                        y=y_idx
-                    )
-                )
+        x_idx = scan_line.index(character)
+        if character not in ant_dict.keys():
+            ant_dict[character] = [Antenna( frequency=character, x=x_idx, y=y_idx)]
+        else:
+            ant_dict[character].append(Antenna(frequency=character, x=x_idx, y=y_idx))
 
     return ant_dict, frequency_list
 
