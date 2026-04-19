@@ -1,6 +1,3 @@
-
-
-
 __current_value = 50
 __zeroed_count = 0
 
@@ -21,6 +18,16 @@ def rotate_value(current_value, instruction):
 
     steps = int(instruction)
 
+    while steps > 100:
+        increment_zeroed_count()
+        steps -= 100
+
+    if ((((current_value-steps < 0) and (direction == -1) or
+        (current_value+steps > 100) and (direction == 1))) and
+            (current_value != 0)):
+        print(f"Instruction: {instruction}, Direction: {'Left' if direction==-1 else 'Right'}, Steps: {steps}, Current Value: {current_value} - COUNT!")
+        increment_zeroed_count()
+
     new_value = (current_value + direction*steps)%100
 
     if new_value == 0:
@@ -32,7 +39,7 @@ def rotate_value(current_value, instruction):
 
 
 if __name__ == "__main__":
-    with open("sample.txt", "r") as f:
+    with open("input.txt", "r") as f:
         lines = f.readlines()
 
         for line in lines:
